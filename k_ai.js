@@ -1,3 +1,8 @@
+/****************************
+ *      KAI (c) Kelbaz      *
+ *      "`"`"`"`"`"`"`      *
+/***************************/
+
 /**
  * A function that return the sigmoided of a number.
  * @returns The sigmoided number.
@@ -119,13 +124,18 @@ class NeuralNetwork {
   /**
    * Create a neural nework.
    * @param {Number} iLayer The number of inputs.
-   * @param {Number} hLayer The number of hidden perceptrons.
+   * @param {Array<Number>} hLayers The number of hidden perceptrons.
    * @param {Number} oLayer The number of outputs.
    */
-  constructor(iLayer, hLayer, oLayer) {
+  constructor(iLayer, hLayers, oLayer) {
     this.iLayer = iLayer;
-    this.hLayer = new Layer(hLayer, iLayer);
-    this.oLayer = new Layer(oLayer, hLayer);
+    this.hLayers = [];
+    let prevLayer = iLayer;
+    for (const layer of hLayers) {
+      this.hLayers.push(new Layer(layer, prevLayer));
+      prevLayer = layer;
+    }
+    this.oLayer = new Layer(oLayer, prevLayer);
 
     this.learningRate = 0.1;
   }
@@ -136,10 +146,13 @@ class NeuralNetwork {
    * @returns The result of the forwarding.
    */
   feedForward(inputArray) {
-    let hLayerResult = this.hLayer.feedForward(inputArray);
-    let oLayerResult = this.oLayer.feedForward(hLayerResult);
+    let result = inputArray;
+    for (const layer of this.hLayers) {
+      result = layer.feedForward(result);
+    }
+    result = this.oLayer.feedForward(result);
 
-    return oLayerResult;
+    return result;
   }
 
   /**
@@ -149,52 +162,67 @@ class NeuralNetwork {
    */
   train(inputArray, targetArray) {
     // Train the neural network
-    let hLayerResult = this.hLayer.feedForward(inputArray);
-    let oLayerResult = this.oLayer.feedForward(hLayerResult);
+    let result = inputArray;
+    let results = [result];
+    for (const layer of this.hLayers) {
+      result = layer.feedForward(result);
+      results.push(result);
+    }
+    result = this.oLayer.feedForward(result);
+    results.push(result);
 
     // Calculate the error
     let oLayerError = [];
-    for (let i in oLayerResult) {
-      oLayerError[i] = targetArray[i] - oLayerResult[i];
+    for (let i in result) {
+      oLayerError[i] = targetArray[i] - result[i];
     }
 
     // Calculate the delta
     let oLayerDelta = [];
-    for (let i in oLayerResult) {
-      oLayerDelta[i] = oLayerError[i] * dsigmoid(oLayerResult[i]);
+    for (let i in result) {
+      oLayerDelta[i] = oLayerError[i] * dsigmoid(result[i]);
     }
 
     // Calculate the error
-    let hLayerError = [];
-    for (let i in hLayerResult) {
-      hLayerError[i] = 0;
-      for (let j in oLayerDelta) {
-        hLayerError[i] +=
-          oLayerDelta[j] * this.oLayer.perceptrons[j].weights[i];
+    let hLayersError = [];
+    for (let i = this.hLayers.length - 1; i >= 0; i--) {
+      hLayersError[i] = [];
+      for (let j in this.hLayers[i].perceptrons) {
+        hLayersError[i][j] = 0;
+        for (let k in oLayerDelta) {
+          hLayersError[i][j] +=
+            oLayerDelta[k] * this.oLayer.perceptrons[k].weights[j];
+        }
       }
     }
 
     // Calculate the delta
-    let hLayerDelta = [];
-    for (let i in hLayerResult) {
-      hLayerDelta[i] = hLayerError[i] * dsigmoid(hLayerResult[i]);
+    let hLayersDelta = [];
+    for (let i = this.hLayers.length - 1; i >= 0; i--) {
+      hLayersDelta[i] = [];
+      for (let j in this.hLayers[i].perceptrons) {
+        hLayersDelta[i][j] = hLayersError[i][j] * dsigmoid(results[i + 1][j]);
+      }
     }
 
     // Update the weights
     for (let i in this.oLayer.perceptrons) {
-      for (let j in hLayerResult) {
+      for (let j in results[this.hLayers.length]) {
         this.oLayer.perceptrons[i].weights[j] +=
-          this.learningRate * oLayerDelta[i] * hLayerResult[j];
+          this.learningRate * oLayerDelta[i] * results[this.hLayers.length][j];
       }
       this.oLayer.perceptrons[i].bias += this.learningRate * oLayerDelta[i];
     }
 
-    for (let i in this.hLayer.perceptrons) {
-      for (let j in inputArray) {
-        this.hLayer.perceptrons[i].weights[j] +=
-          this.learningRate * hLayerDelta[i] * inputArray[j];
+    for (let i = this.hLayers.length - 1; i >= 0; i--) {
+      for (let j in this.hLayers[i].perceptrons) {
+        for (let k in results[i]) {
+          this.hLayers[i].perceptrons[j].weights[k] +=
+            this.learningRate * hLayersDelta[i][j] * results[i][k];
+        }
+        this.hLayers[i].perceptrons[j].bias +=
+          this.learningRate * hLayersDelta[i][j];
       }
-      this.hLayer.perceptrons[i].bias += this.learningRate * hLayerDelta[i];
     }
   }
 
@@ -208,10 +236,10 @@ class NeuralNetwork {
     }
     let nn = new NeuralNetwork(
       data.iLayer,
-      data.hLayer.layerSize,
+      data.hLayers.map(layer => layer.layerSize),
       data.oLayer.layerSize
     );
-    nn.hLayer = Layer.deserialize(data.hLayer);
+    nn.hLayers = data.hLayers.map(Layer.deserialize);
     nn.oLayer = Layer.deserialize(data.oLayer);
     return nn;
   }
