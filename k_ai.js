@@ -1,7 +1,15 @@
-/****************************
- *      KAI (c) Kelbaz      *
- * v1.4 `"`"`"`"`"`"`"      *
-/***************************/
+/* * * * * * * * * * * * * * * * * * * * * * * * * * *\
+* v1.4   Kelbaz Artificial Intellingence    By Kelbaz *
+*                                                     *
+*        @@@@@@@@@@@@@@   @@,              @*`'@      *
+*        @@@@@@@@@@@@'    @@@@,            @. ,@      *
+*     ,@@ `@@@@@@@@'      @'  `@,          @@@@@      *
+*     @@@  :@@@@@'        @.  ,@@@,        @@@@@      *
+*     `@@ ,@@@@' @@,      @@@@@`@@@@,      @@@@@      *
+*        @@@@'   @@@@,    @@@@@ `@@@@@,    @@@@@      *
+*        @@'     @@@@@@   @@@@@   `@@@@@   @@@@@      *
+*                                                     *
+\* * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 const KAI = {};
 
@@ -12,11 +20,17 @@ KAI.ActivationFunction = class {
   }
 };
 
+/**
+ * Sigmoid activations function.
+ */
 KAI.sigmoid = new KAI.ActivationFunction(
   (x) => 1 / (1 + Math.exp(-x)),
   (y) => y * (1 - y)
 );
 
+/**
+ * Tanh activations function.
+ */
 KAI.tanh = new KAI.ActivationFunction(
   (x) => Math.tanh(x),
   (y) => 1 - y * y
@@ -25,7 +39,7 @@ KAI.tanh = new KAI.ActivationFunction(
 /**
  * A class that represent a perceptron.
  */
-KAI.Perceptron = class {
+class Perceptron {
   /**
    * Create a perceptron.
    * @param {Number} size The number of inputs.
@@ -66,7 +80,7 @@ KAI.Perceptron = class {
     if (typeof data == "string") {
       data = JSON.parse(data);
     }
-    let perc = new KAI.Perceptron(data.size);
+    let perc = new Perceptron(data.size);
     perc.bias = data.bias;
     perc.weights = data.weights;
     return perc;
@@ -75,7 +89,7 @@ KAI.Perceptron = class {
 /**
  * A class that represent a layer of perceptrons.
  */
-KAI.Layer = class {
+class Layer {
   /**
    * Create a layer of perceptrons.
    * @param {Number} layerSize The number of perceptrons in the layer.
@@ -89,7 +103,7 @@ KAI.Layer = class {
     this.perceptrons = [];
 
     for (let i = 0; i < layerSize; i++) {
-      this.perceptrons.push(new KAI.Perceptron(percSize));
+      this.perceptrons.push(new Perceptron(percSize));
     }
   }
 
@@ -118,7 +132,7 @@ KAI.Layer = class {
     if (typeof data == "string") {
       data = JSON.parse(data);
     }
-    let layer = new KAI.Layer(data.layerSize, data.percSize);
+    let layer = new Layer(data.layerSize, data.percSize);
     layer.perceptrons = data.perceptrons.map(Perceptron.deserialize);
     return layer;
   }
@@ -137,10 +151,10 @@ KAI.NeuralNetwork = class {
     this.hLayers = [];
     let prevLayer = this.iLayer;
     for (const layer of params.hiddenLayers) {
-      this.hLayers.push(new KAI.Layer(layer, prevLayer));
+      this.hLayers.push(new Layer(layer, prevLayer));
       prevLayer = layer;
     }
-    this.oLayer = new KAI.Layer(params.outputLayer, prevLayer);
+    this.oLayer = new Layer(params.outputLayer, prevLayer);
 
     this.learningRate = params.learningRate || 0.1;
     this.activation = params.activationFunction || KAI.sigmoid;
