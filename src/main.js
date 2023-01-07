@@ -24,3 +24,5 @@ if (typeof window !== "undefined") {
 } else {
   module.exports = K_AI;
 }
+
+export default K_AI;
