@@ -99,7 +99,7 @@ export class Network {
   train(dataset, iter) {
     for (let i = 1; i <= iter; i++) {
       if (iter < 100 || i % (iter / 100) === 0) {
-        console.log(`Iteration ${i} of ${iter} (${(i / iter) * 100}%)`);
+        console.log(`Iteration ${i} of ${iter} (${Math.round((i / iter) * 100)}%)`);
       }
 
       for (let j = 0; j < dataset.length; j++) {
