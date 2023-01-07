@@ -26,10 +26,10 @@ export class Network {
 
   save() {
     return JSON.stringify({
-      "inputs": this.layers[0],
-      "weights": this.weights.map(matrix => matrix.data),
-      "biases": this.biases.map(matrix => matrix.data),
-      "learning_rate": this.learningRate,
+      inputs: this.layers[0],
+      weights: this.weights.map((matrix) => matrix.data),
+      biases: this.biases.map((matrix) => matrix.data),
+      learning_rate: this.learningRate,
     });
   }
 
@@ -42,7 +42,7 @@ export class Network {
 
     for (let i = 0; i < saveData.weights.length; i++) {
       layers.push(saveData.weights[i].length);
-      
+
       weights.push(Matrix.from(saveData.weights[i]));
       biases.push(Matrix.from(saveData.biases[i]));
     }
@@ -99,7 +99,7 @@ export class Network {
   train(dataset, iter) {
     for (let i = 1; i <= iter; i++) {
       if (iter < 100 || i % (iter / 100) === 0) {
-        console.log(`Iteration ${i} of ${iter}`);
+        console.log(`Iteration ${i} of ${iter} (${(i / iter) * 100}%)`);
       }
 
       for (let j = 0; j < dataset.length; j++) {
