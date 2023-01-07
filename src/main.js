@@ -12,17 +12,11 @@
 \* * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 import * as activation from "./activations.js";
-import Matrix from "./matrix.js";
 import * as network from "./network.js";
 
-if (typeof window !== "undefined") {
-  window.K_AI = {
-    activation,
-    network,
-  }
-} else {
-  module.exports = {
-    activation,
-    network,
-  }
+const K_AI = {
+  activation,
+  network,
 }
+
+export default K_AI;
