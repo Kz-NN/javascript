@@ -19,4 +19,8 @@ const K_AI = {
   network,
 }
 
-export default K_AI;
+if (typeof window !== "undefined") {
+  window.K_AI = K_AI;
+} else {
+  module.exports = K_AI;
+}
