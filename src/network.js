@@ -25,7 +25,33 @@ export class Network {
   }
 
   save() {
-    JSON.stringify(this);
+    return JSON.stringify({
+      "inputs": this.layers[0],
+      "weights": this.weights.map(matrix => matrix.data),
+      "biases": this.biases.map(matrix => matrix.data),
+      "learning_rate": this.learningRate,
+    });
+  }
+
+  static deserialize(data, activation) {
+    let saveData = JSON.parse(data);
+
+    let weights = [];
+    let biases = [];
+    let layers = [saveData.inputs];
+
+    for (let i = 0; i < saveData.weights.length; i++) {
+      layers.push(saveData.weights[i].length);
+      
+      weights.push(Matrix.from(saveData.weights[i]));
+      biases.push(Matrix.from(saveData.biases[i]));
+    }
+
+    let nn = new Network(layers, saveData.learning_rate, activation);
+    nn.weights = weights;
+    nn.biases = biases;
+
+    return nn;
   }
 
   feedForward(inputs) {

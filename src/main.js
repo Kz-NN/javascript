@@ -12,6 +12,7 @@
 \* * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 import * as activation from "./activations.js";
+import Matrix from "./matrix.js";
 import * as network from "./network.js";
 
 if (typeof window !== "undefined") {
