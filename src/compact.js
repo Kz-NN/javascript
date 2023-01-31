@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * *\
-* v1.5   Kelbaz Artificial Intellingence    By Kelbaz *
+* v1.6   Kelbaz Artificial Intellingence    By Kelbaz *
 *                                                     *
 *        @@@@@@@@@@@@@@   @@,              @*`'@      *
 *        @@@@@@@@@@@@'    @@@@,            @. ,@      *
@@ -244,7 +244,7 @@ class Network {
       this.data.push(current);
     }
 
-    return current.data[0];
+    return current.transpose().data[0];
   }
 
   backPropagate(outputs, targets) {
@@ -252,8 +252,8 @@ class Network {
       throw Error("Invalid number of targets");
     }
 
-    let parsed = Matrix.from([outputs]);
-    let errors = Matrix.from([targets]).subtract(parsed);
+    let parsed = Matrix.from([outputs]).transpose();
+    let errors = Matrix.from([targets]).transpose().subtract(parsed);
     let gradients = parsed.map(this.activation.dfunc);
 
     for (let i = this.layers.length - 2; i >= 0; i--) {

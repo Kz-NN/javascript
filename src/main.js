@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * *\
-* v1.5   Kelbaz Artificial Intellingence    By Kelbaz *
+* v1.6   Kelbaz Artificial Intellingence    By Kelbaz *
 *                                                     *
 *        @@@@@@@@@@@@@@   @@,              @*`'@      *
 *        @@@@@@@@@@@@'    @@@@,            @. ,@      *
